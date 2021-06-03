@@ -47,24 +47,41 @@ namespace System
             return !notContainObj.Contains(obj);
         }
         /// <summary>
-        /// 数组拼接成字符串
+        /// 数组拼接成字符串，默认逗号拼接
         /// </summary>
         /// <param name="list"></param>
-        /// <param name="separator">拼接字符串</param>
+        /// <param name="separator">字符串分隔符，默认逗号</param>
         /// <returns></returns>
-        public static string JoinToString(this object[] list, string separator)
+        public static string JoinToString(this object[] list, string separator=",")
         {
             return string.Join(separator, list);
         }
         /// <summary>
-        /// 数组拼接成字符串
+        /// 数组拼接成字符串，默认逗号拼接
         /// </summary>
         /// <param name="list"></param>
-        /// <param name="separator">拼接字符串</param>
+        /// <param name="separator">字符串分隔符，默认逗号</param>
         /// <returns></returns>
-        public static string JoinToString<T>(this List<T> list, string separator)
+        public static string JoinToString<T>(this List<T> list, string separator=",")
         {
             return string.Join(separator, list);
+        }
+
+        /// <summary>
+        /// 数组拼接成字符串，默认逗号拼接
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="selectField">筛选拼接的字段</param>
+        /// <param name="separator">字符串分隔符，默认逗号</param>
+        /// <returns></returns>
+        public static string JoinToString<T>(this List<T> list,Func<T,object> selectField, string separator = ",")
+        {
+            List<object> tempList = new List<object>(list.Count);
+            list.ForEach(l =>
+            {
+                tempList.Add(selectField(l));
+            });
+            return tempList.JoinToString(separator);
         }
         #region (反)序列化
         /// <summary>

@@ -61,12 +61,13 @@ namespace Common
             return model.CheckModelResult().IsVaild;
         }
         /// <summary>
-        /// 验证方法参数
+        /// 验证方法参数(静态方法不可用)
         /// System.ComponentModel.DataAnnotations中的验证
+        /// 使用方法：在要验证的方法内部this.CheckMethodParamsResult(nameof(方法名),.....按顺序放入方法的参数)
         /// </summary>
         /// <param name="model"></param>
         /// <param name="methodName">方法名，使用nameof(方法)</param>
-        /// <param name="paramsObjs">按顺序，将方法的参数放入</param>
+        /// <param name="paramsObjs">按顺序，将方法的参数放入，注意:如果是List，请ToArray()</param>
         /// <returns></returns>
         public static ValidResult CheckMethodParamsResult<T>(this T model, string methodName, params object[] paramsObjs) where T : class, new()
         {
@@ -84,7 +85,7 @@ namespace Common
                     {
                         var paramInfo = paramInfos[i];
                         var value = paramsObjs[i];
-                        if (paramInfo.ParameterType.IsClass)
+                        if (paramInfo.ParameterType.IsClass&&paramInfo.ParameterType!=typeof(string))//类处理，用上面的方法
                         {
                             var results= value.CheckModelResult();
                             if (!results.IsVaild)
@@ -93,7 +94,7 @@ namespace Common
                                 result.ErrorMembers.AddRange(results.ErrorMembers);
                             }
                         }
-                        else
+                        else//非类处理
                         {
                             var attrValid = paramInfo.GetCustomAttributes<ValidationAttribute>();
                             if (!attrValid.Any())
@@ -127,13 +128,14 @@ namespace Common
         }
 
         /// <summary>
-        /// 验证方法参数
+        /// 验证方法参数(静态方法不可用)
         /// System.ComponentModel.DataAnnotations中的验证
+        /// 使用方法：在要验证的方法内部this.CheckMethodParamsResult(nameof(方法名),.....按顺序放入方法的参数)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="model"></param>
         /// <param name="methodName">方法名，使用nameof(方法)</param>
-        /// <param name="paramsObjs">按顺序，将方法的参数放入</param>
+        /// <param name="paramsObjs">按顺序，将方法的参数放入，注意:如果是List，请ToArray()</param>
         /// <returns></returns>
         public static bool CheckMethodParams<T>(this T model, string methodName, params object[] paramsObjs) where T : class, new()
         {
