@@ -11,7 +11,7 @@ using Common.CustomException;
 namespace Common
 {
     /// <summary>
-    /// 记录日志
+    /// 记录日志，输出到文件
     /// </summary>
     public static class LogUtil
     {

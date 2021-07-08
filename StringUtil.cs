@@ -1,5 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 using System.Globalization;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using Common;
 
@@ -89,9 +92,9 @@ namespace System
         /// <param name="s"></param>
         /// <param name="settings"></param>
         /// <returns></returns>
-        public static T DeserializeNewtonJson<T>(this string s,JsonSerializerSettings settings)
+        public static T DeserializeNewtonJson<T>(this string s, JsonSerializerSettings settings)
         {
-            return JsonConvert.DeserializeObject<T>(s,settings);
+            return JsonConvert.DeserializeObject<T>(s, settings);
         }
         /// <summary>
         /// 字符串转日期
@@ -113,10 +116,10 @@ namespace System
         /// <param name="s"></param>
         /// <param name="encoding">默认是utf8格式</param>
         /// <returns></returns>
-        public static byte[] ToByteArr(this string s,Encoding encoding=null)
+        public static byte[] ToByteArr(this string s, Encoding encoding = null)
         {
-            if(encoding is null)
-                encoding=Encoding.UTF8;
+            if (encoding is null)
+                encoding = Encoding.UTF8;
             return encoding.GetBytes(s);
         }
         /// <summary>
@@ -138,7 +141,7 @@ namespace System
         /// <param name="s"></param>
         /// <param name="ignoreCase">是否忽略大小写，默认false</param>
         /// <returns></returns>
-        public static TEnum ToEnum<TEnum>(this string s,bool ignoreCase=false) where TEnum:Enum
+        public static TEnum ToEnum<TEnum>(this string s, bool ignoreCase = false) where TEnum : Enum
         {
             return (TEnum)Enum.Parse(typeof(TEnum), s, ignoreCase);
         }
@@ -147,7 +150,8 @@ namespace System
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
-        public static string RemoveEmoji(string str) {
+        public static string RemoveEmoji(string str)
+        {
             foreach (var a in str)
             {
                 byte[] bts = Encoding.UTF32.GetBytes(a.ToString());

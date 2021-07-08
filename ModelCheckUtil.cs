@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 
@@ -60,6 +62,13 @@ namespace Common
         {
             return model.CheckModelResult().IsVaild;
         }
+
+        /// <summary>
+        /// 方法缓存
+        /// </summary>
+        private static ConcurrentDictionary<string, ParameterInfo[]> dicParamInfo =
+            new ConcurrentDictionary<string, ParameterInfo[]>();
+
         /// <summary>
         /// 验证方法参数(静态方法不可用)
         /// System.ComponentModel.DataAnnotations中的验证
@@ -67,52 +76,69 @@ namespace Common
         /// </summary>
         /// <param name="model"></param>
         /// <param name="methodName">方法名，使用nameof(方法)</param>
-        /// <param name="paramsObjs">按顺序，将方法的参数放入，注意:如果是List，请ToArray()</param>
+        /// <param name="paramsObjs">方法参数具体值，按顺序放入，注意:如果是List，请ToArray()</param>
         /// <returns></returns>
         public static ValidResult CheckMethodParamsResult<T>(this T model, string methodName, params object[] paramsObjs) where T : class, new()
         {
-            ValidResult result = new ValidResult();
-            try
+            var modelType = model.GetType();
+            string modelName = modelType.FullName;
+            if (!dicParamInfo.ContainsKey(modelName))
             {
-                var modelType = model.GetType();
                 var methodInfo = modelType.GetMethod(methodName);
                 if (methodInfo is null)
                     throw new Exception("验证方法参数的方法名不正确");
                 else
+                    dicParamInfo.TryAdd(modelName, methodInfo.GetParameters());
+            }
+            return model.CheckMethodParamsResult(dicParamInfo[modelName], paramsObjs);
+        }
+
+        /// <summary>
+        /// 验证方法参数(静态方法不可用)
+        /// System.ComponentModel.DataAnnotations中的验证
+        /// 使用方法：在要验证的方法内部this.CheckMethodParamsResult(nameof(方法名),.....按顺序放入方法的参数)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="paramInfos">方法的参数信息</param>
+        /// <param name="paramsObjs">方法参数具体值，按顺序放入，注意:如果是List，请ToArray()</param>
+        /// <returns></returns>
+        public static ValidResult CheckMethodParamsResult<T>(this T model, ParameterInfo[] paramInfos, params object[] paramsObjs) where T : class, new()
+        {
+            ValidResult result = new ValidResult();
+            try
+            {
+                for (var i = 0; i < paramsObjs.Length; i++)
                 {
-                    var paramInfos = methodInfo.GetParameters();
-                    for (var i = 0; i < paramsObjs.Length; i++)
+                    var paramInfo = paramInfos[i];
+                    var value = paramsObjs[i];
+                    if (paramInfo.ParameterType.IsClass && paramInfo.ParameterType != typeof(string))//类处理，用上面的方法
                     {
-                        var paramInfo = paramInfos[i];
-                        var value = paramsObjs[i];
-                        if (paramInfo.ParameterType.IsClass&&paramInfo.ParameterType!=typeof(string))//类处理，用上面的方法
+                        var results = value.CheckModelResult();
+                        if (!results.IsVaild)
                         {
-                            var results= value.CheckModelResult();
-                            if (!results.IsVaild)
-                            {
-                                result.IsVaild = false;
-                                result.ErrorMembers.AddRange(results.ErrorMembers);
-                            }
+                            result.IsVaild = false;
+                            result.ErrorMembers.AddRange(results.ErrorMembers);
                         }
-                        else//非类处理
+                    }
+                    else//非类处理
+                    {
+                        var attrValid = paramInfo.GetCustomAttributes<ValidationAttribute>();
+                        if (!attrValid.Any())
+                            continue;
+                        var context = new ValidationContext(paramInfo);
+                        var results = new List<ValidationResult>();
+                        var isValid = Validator.TryValidateValue(value, context, results, attrValid);
+                        if (!isValid)
                         {
-                            var attrValid = paramInfo.GetCustomAttributes<ValidationAttribute>();
-                            if (!attrValid.Any())
-                                continue;
-                            var context = new ValidationContext(paramInfo);
-                            var results = new List<ValidationResult>();
-                            var isValid = Validator.TryValidateValue(value, context, results, attrValid);
-                            if (!isValid)
+                            result.IsVaild = false;
+                            foreach (var item in results)
                             {
-                                result.IsVaild = false;
-                                foreach (var item in results)
+                                result.ErrorMembers.Add(new ErrorMember()
                                 {
-                                    result.ErrorMembers.Add(new ErrorMember()
-                                    {
-                                        ErrorMessage = item.ErrorMessage,
-                                        ErrorMemberName = item.MemberNames.FirstOrDefault()
-                                    });
-                                }
+                                    ErrorMessage = item.ErrorMessage,
+                                    ErrorMemberName = item.MemberNames.FirstOrDefault()
+                                });
                             }
                         }
                     }
@@ -126,7 +152,20 @@ namespace Common
 
             return result;
         }
-
+        /// <summary>
+        /// 验证方法参数(静态方法不可用)
+        /// System.ComponentModel.DataAnnotations中的验证
+        /// 使用方法：在要验证的方法内部this.CheckMethodParamsResult(nameof(方法名),.....按顺序放入方法的参数)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="paramInfos">方法的参数信息</param>
+        /// <param name="paramsObjs">方法参数具体值，按顺序放入，注意:如果是List，请ToArray()</param>
+        /// <returns></returns>
+        public static bool CheckMethodParams<T>(this T model, ParameterInfo[] paramInfos, params object[] paramsObjs) where T : class, new()
+        {
+            return model.CheckMethodParamsResult(paramInfos, paramsObjs).IsVaild;
+        }
         /// <summary>
         /// 验证方法参数(静态方法不可用)
         /// System.ComponentModel.DataAnnotations中的验证
@@ -135,7 +174,7 @@ namespace Common
         /// <typeparam name="T"></typeparam>
         /// <param name="model"></param>
         /// <param name="methodName">方法名，使用nameof(方法)</param>
-        /// <param name="paramsObjs">按顺序，将方法的参数放入，注意:如果是List，请ToArray()</param>
+        /// <param name="paramsObjs">方法参数具体值，按顺序放入，注意:如果是List，请ToArray()</param>
         /// <returns></returns>
         public static bool CheckMethodParams<T>(this T model, string methodName, params object[] paramsObjs) where T : class, new()
         {

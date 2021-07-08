@@ -1,10 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using Mapster;
+﻿using Mapster;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -52,7 +52,7 @@ namespace System
         /// <param name="list"></param>
         /// <param name="separator">字符串分隔符，默认逗号</param>
         /// <returns></returns>
-        public static string JoinToString(this object[] list, string separator=",")
+        public static string JoinToString<T>(this T[] list, string separator=",")
         {
             return string.Join(separator, list);
         }
@@ -60,9 +60,20 @@ namespace System
         /// 数组拼接成字符串，默认逗号拼接
         /// </summary>
         /// <param name="list"></param>
+        /// <param name="selectField">筛选拼接的字段</param>
         /// <param name="separator">字符串分隔符，默认逗号</param>
         /// <returns></returns>
-        public static string JoinToString<T>(this List<T> list, string separator=",")
+        public static string JoinToString<T>(this T[] list, Func<T, object> selectField, string separator = ",")
+        {
+            return list.Select(selectField).JoinToString(separator);
+        }
+        /// <summary>
+        /// 数组拼接成字符串，默认逗号拼接
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="separator">字符串分隔符，默认逗号</param>
+        /// <returns></returns>
+        public static string JoinToString<T>(this IEnumerable<T> list, string separator=",")
         {
             return string.Join(separator, list);
         }
@@ -74,25 +85,20 @@ namespace System
         /// <param name="selectField">筛选拼接的字段</param>
         /// <param name="separator">字符串分隔符，默认逗号</param>
         /// <returns></returns>
-        public static string JoinToString<T>(this List<T> list,Func<T,object> selectField, string separator = ",")
+        public static string JoinToString<T>(this IEnumerable<T> list,Func<T,object> selectField, string separator = ",")
         {
-            List<object> tempList = new List<object>(list.Count);
-            list.ForEach(l =>
-            {
-                tempList.Add(selectField(l));
-            });
-            return tempList.JoinToString(separator);
+            return list.Select(selectField).JoinToString(separator);
         }
         #region (反)序列化
         /// <summary>
-        /// 序列化(按照NewtonJson方式序列化)
+        /// 序列化(按照NewtonJson方式序列化)，日期格式为yyyy-MM-dd HH:mm:ss
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="isFormat">格式化序列化后的字符串，默认false</param>
         /// <returns>序列化后的字符串</returns>
         public static string SerializeNewtonJson(this object obj, bool isFormat = false)
         {
-            return JsonConvert.SerializeObject(obj, isFormat ? Formatting.Indented : Formatting.None);
+            return JsonConvert.SerializeObject(obj, isFormat ? Formatting.Indented : Formatting.None,new JsonSerializerSettings(){DateFormatString = "yyyy-MM-dd HH:mm:ss"});
         }
         /// <summary>
         /// 序列化(按照NewtonJson方式序列化)
@@ -131,6 +137,22 @@ namespace System
             catch { if (ignoreError) return 0; else throw; }
         }
         /// <summary>
+        /// Nullable int
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static int? ToIntNullable(this object obj)
+        {
+            int? ret = null;
+            try
+            {
+                if (!(obj is null))
+                    ret = Convert.ToInt32(obj);
+            }
+            catch{}
+            return ret;
+        }
+        /// <summary>
         /// Convert.ToDouble，参数为true时忽略转换失败
         /// </summary>
         /// <param name="obj"></param>
@@ -140,6 +162,22 @@ namespace System
         {
             try { return Convert.ToDouble(obj); }
             catch { if (ignoreError) return 0; else throw; }
+        }
+        /// <summary>
+        /// Nullable double
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static double? ToDoubleNullable(this object obj)
+        {
+            double? ret = null;
+            try
+            {
+                if(!(obj is null))
+                    ret = Convert.ToDouble(obj);
+            }
+            catch { }
+            return ret;
         }
         /// <summary>
         /// Convert.ToInt64，参数为true时忽略转换失败
@@ -153,6 +191,22 @@ namespace System
             catch { if (ignoreError) return 0; else throw; }
         }
         /// <summary>
+        /// Nullable long
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static long? ToLongNullable(this object obj)
+        {
+            long? ret = null;
+            try
+            {
+                if (!(obj is null))
+                    ret = Convert.ToInt64(obj);
+            }
+            catch { }
+            return ret;
+        }
+        /// <summary>
         /// Convert.ToDecimal，参数为true时忽略转换失败
         /// </summary>
         /// <param name="obj"></param>
@@ -162,6 +216,22 @@ namespace System
         {
             try { return Convert.ToDecimal(obj); }
             catch { if (ignoreError) return 0; else throw; }
+        }
+        /// <summary>
+        /// Nullable decimal
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static decimal? ToDecimalNullable(this object obj)
+        {
+            decimal? ret = null;
+            try
+            {
+                if (!(obj is null))
+                    ret = Convert.ToDecimal(obj);
+            }
+            catch { }
+            return ret;
         }
         /// <summary>
         /// Convert.ToSigle，参数为true时忽略转换失败
@@ -174,6 +244,22 @@ namespace System
         {
             try { return Convert.ToSingle(obj); }
             catch { if (ignoreError) return 0; else throw; }
+        }
+        /// <summary>
+        /// Nullable float
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static float? ToFloatNullable(this object obj)
+        {
+            float? ret = null;
+            try
+            {
+                if (!(obj is null))
+                    ret = Convert.ToSingle(obj);
+            }
+            catch { }
+            return ret;
         }
 
         /// <summary> 
@@ -269,5 +355,67 @@ namespace System
             return source.Adapt<TDestination>(config);
         }
         #endregion
+
+        #region 字符串trim
+        /// <summary>
+        /// trim类的缓存
+        /// </summary>
+        static ConcurrentDictionary<string, List<PropertyInfo>> dicTrimCache = new ConcurrentDictionary<string, List<PropertyInfo>>();
+        /// <summary>
+        /// 对所有标记StringTrimAttribute的字符串进行trim
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        public static void TrimAll<T>(this T model) where T : class, new()
+        {
+            var t = model.GetType();
+            List<PropertyInfo> NeedTrimList;
+            if (!dicTrimCache.TryGetValue(t.FullName, out NeedTrimList))
+            {
+                var thisAttr = t.GetCustomAttribute<StringTrimAttribute>();
+                bool isTrimAll = thisAttr != null && !thisAttr.NotTrim;
+                var props = t.GetProperties().ToList().FindAll(p => p.PropertyType == typeof(string));
+                NeedTrimList = new List<PropertyInfo>();
+                foreach (var propInfo in props)
+                {
+                    var propAttr = propInfo.GetCustomAttribute<StringTrimAttribute>();
+                    if (isTrimAll || propAttr != null)
+                    {
+                        if (propAttr != null && propAttr.NotTrim)//标记nottrim的不要
+                            continue;
+                        NeedTrimList.Add(propInfo);
+                    }
+                }
+                NeedTrimList.TrimExcess();
+                dicTrimCache.TryAdd(t.FullName, NeedTrimList);
+            }
+
+            if (NeedTrimList.Count == 0) return;
+            NeedTrimList.ForEach(p =>
+            {
+                object str = p.GetValue(model);
+                if (str != null)
+                {
+                    p.SetValue(model, (str as string).Trim());
+                }
+            });
+        }
+        #endregion
+
+    }
+
+    /// <summary>
+    /// 将字符串进行Trim，放在class上，将class的所有字符串进行trim
+    /// 可以new的模型才可以使用
+    /// </summary>
+    [AttributeUsage(
+        AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Class,
+        AllowMultiple = false, Inherited = true)]
+    public class StringTrimAttribute : Attribute
+    {
+        /// <summary>
+        /// 不用进行trim
+        /// </summary>
+        public bool NotTrim { get; set; } = false;
     }
 }

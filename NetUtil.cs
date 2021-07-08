@@ -20,59 +20,6 @@ namespace Common
     {
         #region Post请求
         /// <summary>
-        /// 发送Post请求
-        /// </summary>
-        /// <param name="url">请求后台地址</param>
-        /// <param name="dicParam">请求的参数</param>
-        /// <param name="req">web请求对象，默认为空</param>
-        /// <returns>返回请求结果字符串</returns>
-        [Obsolete("该方法虽然可以使用，但效率低下，建议请使用其它Post方法")]
-        public static string Post(string url, Dictionary<string, string> dicParam, HttpWebRequest req = null)
-        {
-            var result = "";
-            if (req is null)
-            {
-                req = (HttpWebRequest)WebRequest.Create(url);
-                req.Method = "Post";
-                req.ContentType = "application/x-www-form-urlencoded";
-            }
-
-            #region 添加Post 参数
-
-            var builder = new StringBuilder();
-            var i = 0;
-            if (dicParam != null)
-                foreach (var item in dicParam)
-                {
-                    if (i > 0)
-                        builder.Append("&");
-                    builder.AppendFormat("{0}={1}", item.Key, item.Value);
-                    i++;
-                }
-
-            var data = Encoding.UTF8.GetBytes(builder.ToString());
-            req.ContentLength = data.Length;
-            using (var reqStream = req.GetRequestStream())
-            {
-                reqStream.Write(data, 0, data.Length);
-                reqStream.Close();
-            }
-
-            #endregion
-
-            var resp = (HttpWebResponse)req.GetResponse();
-            using (var stream = resp.GetResponseStream())
-            {
-                //获取响应内容
-                if (stream != null)
-                    using (var reader = new StreamReader(stream, Encoding.UTF8))
-                    {
-                        result = reader.ReadToEnd();
-                    }
-            }
-            return result;
-        }
-        /// <summary>
         /// post请求
         /// </summary>
         /// <param name="url">请求路径</param>
@@ -123,31 +70,6 @@ namespace Common
         #endregion
 
         #region Get请求
-        /// <summary>
-        /// 发送Get请求
-        /// </summary>
-        /// <param name="url">地址</param>
-        /// <param name="req">web请求对象，默认为空</param>
-        /// <returns>返回请求结果字符串</returns>
-        [Obsolete("该方法虽然可以使用，但效率低下，建议请使用其它Get方法")]
-        public static string Get(string url, HttpWebRequest req = null)
-        {
-            string result = "";
-            var builder = new StringBuilder();
-            builder.Append(url);
-            if (req is null)
-                req = (HttpWebRequest)WebRequest.Create(builder.ToString());
-            var resp = (HttpWebResponse)req.GetResponse();
-            using (var stream = resp.GetResponseStream())
-            {
-                //获取内容
-                using (var reader = new StreamReader(stream))
-                {
-                    result = reader.ReadToEnd();
-                }
-            }
-            return result;
-        }
         /// <summary>
         /// Get请求，返回流
         /// </summary>

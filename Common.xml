@@ -160,7 +160,7 @@
         </member>
         <member name="T:Common.ICacheUtil">
             <summary>
-            缓存接口，可以用CacheUtil和CacheReidsUtil来实现
+            缓存接口，两种实现：CacheMemoryUtil和CacheReidsUtil
             </summary>
         </member>
         <member name="M:Common.ICacheUtil.Exists(System.String)">
@@ -289,7 +289,7 @@
         </member>
         <member name="T:Common.CronUtil">
             <summary>
-            定时帮助类
+            定时帮助类，基于Quartz.net
             </summary>
         </member>
         <member name="P:Common.CronUtil.sche">
@@ -753,7 +753,7 @@
         </member>
         <member name="T:Common.LogUtil">
             <summary>
-            记录日志
+            记录日志，输出到文件
             </summary>
         </member>
         <member name="F:Common.LogUtil.PrintInfo">
@@ -1078,25 +1078,56 @@
             <param name="model"></param>
             <returns></returns>
         </member>
+        <member name="F:Common.ModelCheckUtil.dicParamInfo">
+            <summary>
+            方法缓存
+            </summary>
+        </member>
         <member name="M:Common.ModelCheckUtil.CheckMethodParamsResult``1(``0,System.String,System.Object[])">
             <summary>
-            验证方法参数
+            验证方法参数(静态方法不可用)
             System.ComponentModel.DataAnnotations中的验证
+            使用方法：在要验证的方法内部this.CheckMethodParamsResult(nameof(方法名),.....按顺序放入方法的参数)
             </summary>
             <param name="model"></param>
             <param name="methodName">方法名，使用nameof(方法)</param>
-            <param name="paramsObjs">按顺序，将方法的参数放入</param>
+            <param name="paramsObjs">方法参数具体值，按顺序放入，注意:如果是List，请ToArray()</param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ModelCheckUtil.CheckMethodParamsResult``1(``0,System.Reflection.ParameterInfo[],System.Object[])">
+            <summary>
+            验证方法参数(静态方法不可用)
+            System.ComponentModel.DataAnnotations中的验证
+            使用方法：在要验证的方法内部this.CheckMethodParamsResult(nameof(方法名),.....按顺序放入方法的参数)
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="model"></param>
+            <param name="paramInfos">方法的参数信息</param>
+            <param name="paramsObjs">方法参数具体值，按顺序放入，注意:如果是List，请ToArray()</param>
+            <returns></returns>
+        </member>
+        <member name="M:Common.ModelCheckUtil.CheckMethodParams``1(``0,System.Reflection.ParameterInfo[],System.Object[])">
+            <summary>
+            验证方法参数(静态方法不可用)
+            System.ComponentModel.DataAnnotations中的验证
+            使用方法：在要验证的方法内部this.CheckMethodParamsResult(nameof(方法名),.....按顺序放入方法的参数)
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="model"></param>
+            <param name="paramInfos">方法的参数信息</param>
+            <param name="paramsObjs">方法参数具体值，按顺序放入，注意:如果是List，请ToArray()</param>
             <returns></returns>
         </member>
         <member name="M:Common.ModelCheckUtil.CheckMethodParams``1(``0,System.String,System.Object[])">
             <summary>
-            验证方法参数
+            验证方法参数(静态方法不可用)
             System.ComponentModel.DataAnnotations中的验证
+            使用方法：在要验证的方法内部this.CheckMethodParamsResult(nameof(方法名),.....按顺序放入方法的参数)
             </summary>
             <typeparam name="T"></typeparam>
             <param name="model"></param>
             <param name="methodName">方法名，使用nameof(方法)</param>
-            <param name="paramsObjs">按顺序，将方法的参数放入</param>
+            <param name="paramsObjs">方法参数具体值，按顺序放入，注意:如果是List，请ToArray()</param>
             <returns></returns>
         </member>
         <member name="T:Common.ValidResult">
@@ -1134,15 +1165,6 @@
             网络请求帮助类
             </summary>
         </member>
-        <member name="M:Common.NetUtil.Post(System.String,System.Collections.Generic.Dictionary{System.String,System.String},System.Net.HttpWebRequest)">
-            <summary>
-            发送Post请求
-            </summary>
-            <param name="url">请求后台地址</param>
-            <param name="dicParam">请求的参数</param>
-            <param name="req">web请求对象，默认为空</param>
-            <returns>返回请求结果字符串</returns>
-        </member>
         <member name="M:Common.NetUtil.Post(System.String,System.String,System.Collections.Generic.Dictionary{System.String,System.String})">
             <summary>
             post请求
@@ -1169,14 +1191,6 @@
             <param name="postData">请求体body,json字符串</param>
             <param name="dicHeader">请求头</param>
             <returns></returns>
-        </member>
-        <member name="M:Common.NetUtil.Get(System.String,System.Net.HttpWebRequest)">
-            <summary>
-            发送Get请求
-            </summary>
-            <param name="url">地址</param>
-            <param name="req">web请求对象，默认为空</param>
-            <returns>返回请求结果字符串</returns>
         </member>
         <member name="M:Common.NetUtil.Get_Stream(System.String,System.Net.HttpWebRequest)">
             <summary>
@@ -2068,25 +2082,43 @@
             <param name="notContainObj"></param>
             <returns></returns>
         </member>
-        <member name="M:System.ObjectUtil.JoinToString(System.Object[],System.String)">
+        <member name="M:System.ObjectUtil.JoinToString``1(``0[],System.String)">
             <summary>
-            数组拼接成字符串
+            数组拼接成字符串，默认逗号拼接
             </summary>
             <param name="list"></param>
-            <param name="separator">拼接字符串</param>
+            <param name="separator">字符串分隔符，默认逗号</param>
             <returns></returns>
         </member>
-        <member name="M:System.ObjectUtil.JoinToString``1(System.Collections.Generic.List{``0},System.String)">
+        <member name="M:System.ObjectUtil.JoinToString``1(``0[],System.Func{``0,System.Object},System.String)">
             <summary>
-            数组拼接成字符串
+            数组拼接成字符串，默认逗号拼接
             </summary>
             <param name="list"></param>
-            <param name="separator">拼接字符串</param>
+            <param name="selectField">筛选拼接的字段</param>
+            <param name="separator">字符串分隔符，默认逗号</param>
+            <returns></returns>
+        </member>
+        <member name="M:System.ObjectUtil.JoinToString``1(System.Collections.Generic.IEnumerable{``0},System.String)">
+            <summary>
+            数组拼接成字符串，默认逗号拼接
+            </summary>
+            <param name="list"></param>
+            <param name="separator">字符串分隔符，默认逗号</param>
+            <returns></returns>
+        </member>
+        <member name="M:System.ObjectUtil.JoinToString``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Object},System.String)">
+            <summary>
+            数组拼接成字符串，默认逗号拼接
+            </summary>
+            <param name="list"></param>
+            <param name="selectField">筛选拼接的字段</param>
+            <param name="separator">字符串分隔符，默认逗号</param>
             <returns></returns>
         </member>
         <member name="M:System.ObjectUtil.SerializeNewtonJson(System.Object,System.Boolean)">
             <summary>
-            序列化(按照NewtonJson方式序列化)
+            序列化(按照NewtonJson方式序列化)，日期格式为yyyy-MM-dd HH:mm:ss
             </summary>
             <param name="obj"></param>
             <param name="isFormat">格式化序列化后的字符串，默认false</param>
@@ -2117,12 +2149,26 @@
             <param name="ignoreError">忽略错误，转换错误时，返回0</param>
             <returns></returns>
         </member>
+        <member name="M:System.ObjectUtil.ToIntNullable(System.Object)">
+            <summary>
+            Nullable int
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
         <member name="M:System.ObjectUtil.ToDouble(System.Object,System.Boolean)">
             <summary>
             Convert.ToDouble，参数为true时忽略转换失败
             </summary>
             <param name="obj"></param>
             <param name="ignoreError">忽略错误，转换错误时，返回0</param>
+            <returns></returns>
+        </member>
+        <member name="M:System.ObjectUtil.ToDoubleNullable(System.Object)">
+            <summary>
+            Nullable double
+            </summary>
+            <param name="obj"></param>
             <returns></returns>
         </member>
         <member name="M:System.ObjectUtil.ToLong(System.Object,System.Boolean)">
@@ -2133,12 +2179,26 @@
             <param name="ignoreError">忽略错误，转换错误时，返回0</param>
             <returns></returns>
         </member>
+        <member name="M:System.ObjectUtil.ToLongNullable(System.Object)">
+            <summary>
+            Nullable long
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
         <member name="M:System.ObjectUtil.ToDecimal(System.Object,System.Boolean)">
             <summary>
             Convert.ToDecimal，参数为true时忽略转换失败
             </summary>
             <param name="obj"></param>
             <param name="ignoreError">忽略错误，转换错误时，返回0</param>
+            <returns></returns>
+        </member>
+        <member name="M:System.ObjectUtil.ToDecimalNullable(System.Object)">
+            <summary>
+            Nullable decimal
+            </summary>
+            <param name="obj"></param>
             <returns></returns>
         </member>
         <member name="M:System.ObjectUtil.ToFloat(System.Object,System.Boolean)">
@@ -2148,6 +2208,13 @@
             </summary>
             <param name="obj"></param>
             <param name="ignoreError">忽略错误，转换错误时，返回0</param>
+            <returns></returns>
+        </member>
+        <member name="M:System.ObjectUtil.ToFloatNullable(System.Object)">
+            <summary>
+            Nullable float
+            </summary>
+            <param name="obj"></param>
             <returns></returns>
         </member>
         <member name="M:System.ObjectUtil.ToBytes(System.Object)">
@@ -2206,6 +2273,29 @@
             <param name="source"></param>
             <param name="igoreCase">匹配时，忽略大小写，默认false</param>
             <returns></returns>
+        </member>
+        <member name="F:System.ObjectUtil.dicTrimCache">
+            <summary>
+            trim类的缓存
+            </summary>
+        </member>
+        <member name="M:System.ObjectUtil.TrimAll``1(``0)">
+            <summary>
+            对所有标记StringTrimAttribute的字符串进行trim
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="model"></param>
+        </member>
+        <member name="T:System.StringTrimAttribute">
+            <summary>
+            将字符串进行Trim，放在class上，将class的所有字符串进行trim
+            可以new的模型才可以使用
+            </summary>
+        </member>
+        <member name="P:System.StringTrimAttribute.NotTrim">
+            <summary>
+            不用进行trim
+            </summary>
         </member>
         <member name="T:System.StringUtil">
             <summary>

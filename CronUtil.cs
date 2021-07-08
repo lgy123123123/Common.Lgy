@@ -11,7 +11,7 @@ using Quartz.Spi;
 namespace Common
 {
     /// <summary>
-    /// 定时帮助类
+    /// 定时帮助类，基于Quartz.net
     /// </summary>
     public static class CronUtil
     {
