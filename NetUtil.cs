@@ -26,7 +26,7 @@ namespace Common
         /// <param name="postData">请求体body,json字符串</param>
         /// <param name="dicHeader">请求头</param>
         /// <returns></returns>
-        public static Task<HttpResponseMessage> Post(string url,string postData, Dictionary<string, string> dicHeader = null)
+        public static Task<HttpResponseMessage> Post(string url,string postData="", Dictionary<string, string> dicHeader = null)
         {
             HttpClient client = new HttpClient();
             HttpRequestMessage request=new HttpRequestMessage(HttpMethod.Post,new Uri(url));
@@ -38,7 +38,8 @@ namespace Common
                     request.Headers.Add(kvHeader.Key, kvHeader.Value);
                 }
             }
-            request.Content.Headers.ContentType=new MediaTypeHeaderValue("application/json");
+            if(dicHeader==null||!dicHeader.ContainsKey("ContentType"))
+                request.Content.Headers.ContentType=new MediaTypeHeaderValue("application/json");
             return client.SendAsync(request);
         }
         /// <summary>
@@ -48,7 +49,7 @@ namespace Common
         /// <param name="postData">请求体body,json字符串</param>
         /// <param name="dicHeader">请求头</param>
         /// <returns></returns>
-        public static async Task<string> Post_ReturnString(string url, string postData, Dictionary<string, string> dicHeader = null)
+        public static async Task<string> Post_ReturnString(string url, string postData="", Dictionary<string, string> dicHeader = null)
         {
             var response = await Post(url, postData, dicHeader);
             response.EnsureSuccessStatusCode();
@@ -61,7 +62,7 @@ namespace Common
         /// <param name="postData">请求体body,json字符串</param>
         /// <param name="dicHeader">请求头</param>
         /// <returns></returns>
-        public static async Task<Stream> Post_ReturnStream(string url, string postData, Dictionary<string, string> dicHeader = null)
+        public static async Task<Stream> Post_ReturnStream(string url, string postData="", Dictionary<string, string> dicHeader = null)
         {
             var response = await Post(url, postData, dicHeader);
             response.EnsureSuccessStatusCode();

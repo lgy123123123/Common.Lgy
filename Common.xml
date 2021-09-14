@@ -2217,6 +2217,13 @@
             <param name="obj"></param>
             <returns></returns>
         </member>
+        <member name="M:System.ObjectUtil.ToBool(System.Object)">
+            <summary>
+            转换成bool类型
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
         <member name="M:System.ObjectUtil.ToBytes(System.Object)">
             <summary> 
             将一个object对象序列化，返回一个byte[]

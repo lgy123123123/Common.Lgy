@@ -194,7 +194,7 @@ namespace Common
         }
         #endregion
 
-        #region 导入时调用的私有方法
+        #region 导出时调用的私有方法
         /// <summary>
         /// 按列插入 
         /// </summary>

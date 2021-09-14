@@ -261,7 +261,27 @@ namespace System
             catch { }
             return ret;
         }
+        /// <summary>
+        /// 转换成bool类型
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static bool ToBool(this object obj)
+        {
+            switch (obj)
+            {
+                case string s:return s.ToLower() == "true";
+                case int i: return i == 1;
+                case double d: return d == 1;
+                case float f: return f == 1;
+                case decimal de: return de == 1;
+                case bool b: return b;
+                case byte bt: return bt == 1;
+                case sbyte sb: return sb==1;
+            }
 
+            throw new Exception($"{obj}转换bool失败");
+        }
         /// <summary> 
         /// 将一个object对象序列化，返回一个byte[]
         /// 若是一个类，则需要给类打上[Serializable]标签
@@ -331,7 +351,7 @@ namespace System
         /// <param name="dest">映射目的对象</param>
         /// <param name="igoreCase">匹配时，忽略大小写，默认false</param>
         /// <returns></returns>
-        public static TDestination MappingTo<TSource, TDestination>(this TSource source, TDestination dest, bool igoreCase = false) where TSource : class, new() where TDestination : class, new()
+        public static TDestination MappingTo<TSource, TDestination>(this TSource source, TDestination dest, bool igoreCase = false) where TSource : class where TDestination : class, new()
         {
             TypeAdapterConfig config = new TypeAdapterConfig();
             if (igoreCase)
